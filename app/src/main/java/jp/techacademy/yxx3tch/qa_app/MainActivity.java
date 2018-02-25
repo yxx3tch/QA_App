@@ -149,6 +149,39 @@ public class MainActivity extends AppCompatActivity {
             favorite.setVisible(true);
             favorite.setEnabled(true);
         }
+
+        Intent intent = getIntent();
+        mGenre = intent.getIntExtra("genre", 0);
+
+        if(mGenre != 0) {
+            switch(mGenre){
+                case 1:
+                    setTitle("趣味");
+                    break;
+                case 2:
+                    setTitle("生活");
+                    break;
+                case 3:
+                    setTitle("健康");
+                    break;
+                case 4:
+                    setTitle("コンピューター");
+                    break;
+                default:
+                    break;
+            }
+            // 質問のリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
+            mQuestionArrayList.clear();
+            mAdapter.setQuestionArrayList(mQuestionArrayList);
+            mListView.setAdapter(mAdapter);
+
+            // 選択したジャンルにリスナーを登録する
+            if (mGenreRef != null) {
+                mGenreRef.removeEventListener(mEventListener);
+            }
+            mGenreRef = mDatabaseReference.child(Const.ContentsPATH).child(String.valueOf(mGenre));
+            mGenreRef.addChildEventListener(mEventListener);
+        }
     }
 
     @Override

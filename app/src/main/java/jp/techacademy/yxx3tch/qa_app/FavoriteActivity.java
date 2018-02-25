@@ -2,8 +2,14 @@ package jp.techacademy.yxx3tch.qa_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -20,6 +26,8 @@ import java.util.HashMap;
 
 public class FavoriteActivity extends AppCompatActivity {
 
+    private Toolbar mToolbar;
+
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mContentsRef;
     private ListView mListView;
@@ -31,11 +39,51 @@ public class FavoriteActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        setTitle("お気に入り");
+        setContentView(R.layout.activity_favorite);
+
+        mToolbar = (Toolbar) findViewById(R.id.favorite_toolbar);
+        setSupportActionBar(mToolbar);
+
+        // ナビゲーションドロワーの設定
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.favorite_drawer_layout);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, mToolbar, R.string.app_name, R.string.app_name);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.favorite_nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                int id = item.getItemId();
+                int mGenre = 0;
+                if(id != R.id.nav_favorite) {
+                    if (id == R.id.nav_hobby) {
+                        mGenre = 1;
+                    } else if (id == R.id.nav_life) {
+                        mGenre = 2;
+                    } else if (id == R.id.nav_health) {
+                        mGenre = 3;
+                    } else if (id == R.id.nav_compter) {
+                        mGenre = 4;
+                    }
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.putExtra("genre", mGenre);
+                    startActivity(intent);
+                }
+
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.favorite_drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
+
         // Firebase
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         // ListViewの準備
-        mListView = (ListView) findViewById(R.id.listView);
+        mListView = (ListView) findViewById(R.id.favoriteListView);
         mAdapter = new QuestionsListAdapter(this);
         mQuestionArrayList = new ArrayList<Question>();
 
@@ -122,7 +170,5 @@ public class FavoriteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favorite);
-        setTitle("お気に入り");
     }
 }
